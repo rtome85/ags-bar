@@ -105,15 +105,20 @@ function Tray() {
   }
 
   return (
-    <box>
-      <For each={items}>
-        {(item) => (
-          <menubutton $={(self) => init(self, item)}>
-            <image gicon={createBinding(item, "gicon")} />
-          </menubutton>
-        )}
-      </For>
-    </box>
+    <menubutton visible={items((i) => i.length > 0)}>
+      <image iconName="view-grid-symbolic" pixelSize={14} />
+      <popover>
+        <box>
+          <For each={items}>
+            {(item) => (
+              <menubutton $={(self) => init(self, item)}>
+                <image gicon={createBinding(item, "gicon")} />
+              </menubutton>
+            )}
+          </For>
+        </box>
+      </popover>
+    </menubutton>
   )
 }
 

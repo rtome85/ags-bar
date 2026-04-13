@@ -31,6 +31,7 @@ label {
 
 .section-header {
   color: ${accent};
+  font-size: 16px;
 }
 
 scale trough slider {
