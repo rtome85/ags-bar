@@ -1,7 +1,7 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Pango from "gi://Pango"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
-import { createBinding, For, With } from "ags"
+import { createBinding, For, With, onCleanup } from "ags"
 
 function btDeviceIcon(icon: string): string {
   const i = (icon || "").toLowerCase()
@@ -176,6 +176,11 @@ export default function BluetoothWidget() {
     }
     adp.stop_discovery()
   }
+
+  onCleanup(() => {
+    if (scanTimer) clearTimeout(scanTimer)
+    scanTimer = null
+  })
 
   const devices = createBinding(bt, "devices")
   const isPowered = createBinding(bt, "isPowered")
