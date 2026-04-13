@@ -46,8 +46,7 @@ function SectionHeader({ label }: { label: string }) {
     <label
       xalign={0}
       label={label.toUpperCase()}
-      cssClasses={["section-header"]}
-      css="font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 12px 0 6px 0;"
+      css="font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 12px 0 6px 0; opacity: 0.5;"
     />
   )
 }
@@ -84,10 +83,10 @@ export default function SoundWidget() {
         >
           {/* Applications */}
           <SectionHeader label="Applications" />
-          <box orientation={Gtk.Orientation.VERTICAL} spacing={2}>
+          <box orientation={Gtk.Orientation.VERTICAL} spacing={2} css="margin-bottom: 8px;">
             <For each={streams}>
               {(stream) => (
-                <box spacing={10} css="padding: 3px 0;">
+                <box spacing={10} css="background: transparent; border-radius: 10px; padding: 7px 10px;">
                   {/* Fixed-width icon lane */}
                   <label
                     css="font-family: 'JetBrainsMono Nerd Font'; font-size: 16px; min-width: 22px;"
@@ -103,7 +102,7 @@ export default function SoundWidget() {
                     label={createBinding(stream, "description")((d) =>
                       d || stream.name || "Unknown",
                     )}
-                    css="font-size: 13px; min-width: 80px; max-width: 100px;"
+                    css="font-size: 13px; font-weight: 600; min-width: 80px; max-width: 100px;"
                   />
                   {/* Slider */}
                   <slider
@@ -114,7 +113,7 @@ export default function SoundWidget() {
                   {/* Fixed-width percentage */}
                   <label
                     xalign={1}
-                    css="min-width: 36px; font-size: 12px; opacity: 0.55;"
+                    css="min-width: 36px; font-size: 12px; opacity: 0.5;"
                     label={createBinding(stream, "volume")((v) => `${Math.round(v * 100)}%`)}
                   />
                 </box>
@@ -133,8 +132,8 @@ export default function SoundWidget() {
                   onClicked={() => (sink.isDefault = true)}
                   css={createBinding(sink, "isDefault")((active) =>
                     active
-                      ? "background: alpha(currentColor, 0.08); border-radius: 8px; padding: 7px 10px;"
-                      : "background: transparent; border-radius: 8px; padding: 7px 10px;",
+                      ? "background: alpha(currentColor, 0.07); border-radius: 10px; padding: 7px 10px;"
+                      : "background: transparent; border-radius: 10px; padding: 7px 10px;",
                   )}
                 >
                   <box spacing={10}>
@@ -163,7 +162,7 @@ export default function SoundWidget() {
             </For>
           </box>
 
-          <Gtk.Separator css="margin: 8px 0;" />
+          {/* <Gtk.Separator css="margin: 8px 0;" /> */}
 
           {/* Input Devices */}
           <SectionHeader label="Input Devices" />
@@ -174,8 +173,8 @@ export default function SoundWidget() {
                   onClicked={() => (mic.isDefault = true)}
                   css={createBinding(mic, "isDefault")((active) =>
                     active
-                      ? "background: alpha(currentColor, 0.08); border-radius: 8px; padding: 7px 10px;"
-                      : "background: transparent; border-radius: 8px; padding: 7px 10px;",
+                      ? "background: alpha(currentColor, 0.07); border-radius: 10px; padding: 7px 10px;"
+                      : "background: transparent; border-radius: 10px; padding: 7px 10px;",
                   )}
                 >
                   <box spacing={10}>
