@@ -27,26 +27,7 @@ function SectionHeader({ label }: { label: string }) {
 const ACTION_BTN = "background: transparent; border-radius: 6px; padding: 5px; min-width: 0; min-height: 0;"
 const SCAN_TIMEOUT_MS = 10_000
 
-let scanTimer: ReturnType<typeof setTimeout> | null = null
-
-function startScan(adp: AstalBluetooth.Adapter) {
-  if (scanTimer) clearTimeout(scanTimer)
-  adp.start_discovery()
-  scanTimer = setTimeout(() => {
-    adp.stop_discovery()
-    scanTimer = null
-  }, SCAN_TIMEOUT_MS)
-}
-
-function stopScan(adp: AstalBluetooth.Adapter) {
-  if (scanTimer) {
-    clearTimeout(scanTimer)
-    scanTimer = null
-  }
-  adp.stop_discovery()
-}
-
-function DeviceRow({ device, adapter }: { device: AstalBluetooth.Device; adapter: AstalBluetooth.Adapter }) {
+function DeviceRow({ device, adapter }: { device: AstalBluetooth.Device; adapter: AstalBluetooth.Adapter | null }) {
   const connected = createBinding(device, "connected")
   const connecting = createBinding(device, "connecting")
   const battery = createBinding(device, "batteryPercentage")
@@ -123,7 +104,7 @@ function DeviceRow({ device, adapter }: { device: AstalBluetooth.Device; adapter
         onClicked={() => {
           try {
             if (device.connected) device.disconnect_device(null)
-            adapter.remove_device(device)
+            adapter?.remove_device(device)
           } catch (e) {
             console.error("Failed to remove device:", e)
           }
@@ -175,6 +156,27 @@ function AvailableDeviceRow({ device }: { device: AstalBluetooth.Device }) {
 
 export default function BluetoothWidget() {
   const bt = AstalBluetooth.get_default()
+
+  // Instance-scoped timer — no cross-instance interference
+  let scanTimer: ReturnType<typeof setTimeout> | null = null
+
+  function startScan(adp: AstalBluetooth.Adapter) {
+    if (scanTimer) clearTimeout(scanTimer)
+    adp.start_discovery()
+    scanTimer = setTimeout(() => {
+      adp.stop_discovery()
+      scanTimer = null
+    }, SCAN_TIMEOUT_MS)
+  }
+
+  function stopScan(adp: AstalBluetooth.Adapter) {
+    if (scanTimer) {
+      clearTimeout(scanTimer)
+      scanTimer = null
+    }
+    adp.stop_discovery()
+  }
+
   const devices = createBinding(bt, "devices")
   const isPowered = createBinding(bt, "isPowered")
   const adapter = createBinding(bt, "adapter")
@@ -228,7 +230,7 @@ export default function BluetoothWidget() {
           <SectionHeader label="My Devices" />
           <box orientation={Gtk.Orientation.VERTICAL} spacing={2} css="margin-bottom: 8px;">
             <For each={myDevices}>
-              {(device) => <DeviceRow device={device} adapter={bt.adapter!} />}
+              {(device) => <DeviceRow device={device} adapter={bt.adapter} />}
             </For>
           </box>
 
