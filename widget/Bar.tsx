@@ -1,7 +1,7 @@
 import app from "ags/gtk4/app"
 import SoundWidget from "./SoundWidget"
 import BluetoothWidget from "./BluetoothWidget"
-import GLib from "gi://GLib"
+import CalendarWidget from "./CalendarWidget"
 import Astal from "gi://Astal?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
@@ -13,7 +13,6 @@ import AstalTray from "gi://AstalTray"
 import AstalMpris from "gi://AstalMpris"
 import AstalApps from "gi://AstalApps"
 import { For, With, createBinding, onCleanup } from "ags"
-import { createPoll } from "ags/time"
 import { execAsync } from "ags/process"
 
 function Mpris() {
@@ -229,20 +228,6 @@ function Battery() {
   )
 }
 
-function Clock({ format = "%H:%M" }) {
-  const time = createPoll("", 1000, () => {
-    return GLib.DateTime.new_now_local().format(format)!
-  })
-
-  return (
-    <menubutton>
-      <label label={time} />
-      <popover>
-        <Gtk.Calendar />
-      </popover>
-    </menubutton>
-  )
-}
 
 export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
   let win: Astal.Window
@@ -271,7 +256,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
           <Mpris />
         </box>
         <box $type="center">
-          <Clock />
+          <CalendarWidget />
         </box>
         <box $type="end">
           <Tray />
