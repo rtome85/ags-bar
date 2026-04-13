@@ -1,5 +1,6 @@
 import app from "ags/gtk4/app"
 import SoundWidget from "./SoundWidget"
+import BluetoothWidget from "./BluetoothWidget"
 import GLib from "gi://GLib"
 import Astal from "gi://Astal?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
@@ -275,6 +276,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
         <box $type="end">
           <Tray />
           <Wireless />
+          <BluetoothWidget />
           <SoundWidget />
           <Battery />
         </box>
