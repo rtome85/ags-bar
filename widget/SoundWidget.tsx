@@ -1,4 +1,5 @@
 import Gtk from "gi://Gtk?version=4.0"
+import Pango from "gi://Pango"
 import AstalWp from "gi://AstalWp"
 import { createBinding, For, With } from "ags"
 
@@ -44,9 +45,9 @@ function SectionHeader({ label }: { label: string }) {
   return (
     <label
       xalign={0}
-      label={label}
+      label={label.toUpperCase()}
       cssClasses={["section-header"]}
-      css="color: @accent_color; font-weight: bold; padding: 0 0 4px 0;"
+      css="font-size: 10px; font-weight: 700; letter-spacing: 1px; padding: 12px 0 6px 0;"
     />
   )
 }
@@ -62,64 +63,66 @@ export default function SoundWidget() {
 
   return (
     <menubutton>
-      {/* Bar icon — nerd font only */}
+      {/* Bar icon */}
       <With value={defaultSpeaker}>
         {(spk) => (
           <label
             css="font-family: 'JetBrainsMono Nerd Font'; font-size: 16px;"
             label={
               spk
-                ? createBinding(
-                    spk,
-                    "volume",
-                  )((v) => nerdVolumeIcon(v, spk.mute))
+                ? createBinding(spk, "volume")((v) => nerdVolumeIcon(v, spk.mute))
                 : "󰝟"
             }
           />
         )}
       </With>
 
-      {/* Popover */}
       <popover>
         <box
           orientation={Gtk.Orientation.VERTICAL}
-          spacing={8}
-          css="min-width: 300px; padding: 12px;"
+          css="min-width: 320px; padding: 4px 12px 12px;"
         >
-          {/* Applications — each For wrapped in its own box to anchor fragment position */}
+          {/* Applications */}
           <SectionHeader label="Applications" />
           <box orientation={Gtk.Orientation.VERTICAL} spacing={2}>
             <For each={streams}>
               {(stream) => (
-                <box spacing={8} css="padding: 2px 0;">
+                <box spacing={10} css="padding: 3px 0;">
+                  {/* Fixed-width icon lane */}
                   <label
-                    css="font-family: 'JetBrainsMono Nerd Font'; font-size: 16px; min-width: 20px;"
-                    label={createBinding(
-                      stream,
-                      "icon",
-                    )((icon) =>
+                    css="font-family: 'JetBrainsMono Nerd Font'; font-size: 16px; min-width: 22px;"
+                    xalign={0.5}
+                    label={createBinding(stream, "icon")((icon) =>
                       streamNerdIcon(icon || stream.description || stream.name),
                     )}
                   />
+                  {/* App name */}
+                  <label
+                    xalign={0}
+                    ellipsize={Pango.EllipsizeMode.END}
+                    label={createBinding(stream, "description")((d) =>
+                      d || stream.name || "Unknown",
+                    )}
+                    css="font-size: 13px; min-width: 80px; max-width: 100px;"
+                  />
+                  {/* Slider */}
                   <slider
                     hexpand
                     onChangeValue={({ value }) => stream.set_volume(value)}
                     value={createBinding(stream, "volume")}
                   />
+                  {/* Fixed-width percentage */}
                   <label
-                    css="min-width: 36px;"
                     xalign={1}
-                    label={createBinding(
-                      stream,
-                      "volume",
-                    )((v) => `${Math.round(v * 100)}%`)}
+                    css="min-width: 36px; font-size: 12px; opacity: 0.55;"
+                    label={createBinding(stream, "volume")((v) => `${Math.round(v * 100)}%`)}
                   />
                 </box>
               )}
             </For>
           </box>
 
-          <Gtk.Separator />
+          <Gtk.Separator css="margin: 8px 0;" />
 
           {/* Playback Devices */}
           <SectionHeader label="Playback Devices" />
@@ -128,28 +131,31 @@ export default function SoundWidget() {
               {(sink) => (
                 <button
                   onClicked={() => (sink.isDefault = true)}
-                  css={createBinding(
-                    sink,
-                    "isDefault",
-                  )((active) =>
+                  css={createBinding(sink, "isDefault")((active) =>
                     active
-                      ? "background: alpha(currentColor, 0.08);"
-                      : "background: transparent;",
+                      ? "background: alpha(currentColor, 0.08); border-radius: 8px; padding: 7px 10px;"
+                      : "background: transparent; border-radius: 8px; padding: 7px 10px;",
                   )}
                 >
-                  <box spacing={8}>
+                  <box spacing={10}>
                     <image
                       iconName="audio-speakers-symbolic"
-                      pixelSize={16}
-                      css={createBinding(
-                        sink,
-                        "isDefault",
-                      )((active) => (active ? "" : "opacity: 0.4;"))}
+                      pixelSize={15}
+                      css={createBinding(sink, "isDefault")((active) =>
+                        active ? "" : "opacity: 0.35;",
+                      )}
                     />
                     <label
                       hexpand
                       xalign={0}
+                      ellipsize={Pango.EllipsizeMode.END}
                       label={createBinding(sink, "description")}
+                      css="font-size: 13px;"
+                    />
+                    <image
+                      iconName="object-select-symbolic"
+                      pixelSize={13}
+                      visible={createBinding(sink, "isDefault")}
                     />
                   </box>
                 </button>
@@ -157,7 +163,7 @@ export default function SoundWidget() {
             </For>
           </box>
 
-          <Gtk.Separator />
+          <Gtk.Separator css="margin: 8px 0;" />
 
           {/* Input Devices */}
           <SectionHeader label="Input Devices" />
@@ -166,28 +172,31 @@ export default function SoundWidget() {
               {(mic) => (
                 <button
                   onClicked={() => (mic.isDefault = true)}
-                  css={createBinding(
-                    mic,
-                    "isDefault",
-                  )((active) =>
+                  css={createBinding(mic, "isDefault")((active) =>
                     active
-                      ? "background: alpha(currentColor, 0.08);"
-                      : "background: transparent;",
+                      ? "background: alpha(currentColor, 0.08); border-radius: 8px; padding: 7px 10px;"
+                      : "background: transparent; border-radius: 8px; padding: 7px 10px;",
                   )}
                 >
-                  <box spacing={8}>
+                  <box spacing={10}>
                     <image
                       iconName="audio-input-microphone-symbolic"
-                      pixelSize={16}
-                      css={createBinding(
-                        mic,
-                        "isDefault",
-                      )((active) => (active ? "" : "opacity: 0.4;"))}
+                      pixelSize={15}
+                      css={createBinding(mic, "isDefault")((active) =>
+                        active ? "" : "opacity: 0.35;",
+                      )}
                     />
                     <label
                       hexpand
                       xalign={0}
+                      ellipsize={Pango.EllipsizeMode.END}
                       label={createBinding(mic, "description")}
+                      css="font-size: 13px;"
+                    />
+                    <image
+                      iconName="object-select-symbolic"
+                      pixelSize={13}
+                      visible={createBinding(mic, "isDefault")}
                     />
                   </box>
                 </button>
