@@ -24,14 +24,12 @@ app.start({
     const monitors = createBinding(app, "monitors")
 
     return (
-      <For each={monitors}>
-        {(monitor) => (
-          <This this={app}>
-            <Bar gdkmonitor={monitor} />
-            <NotificationPopups gdkmonitor={monitor} />
-          </This>
-        )}
-      </For>
+      <This this={app}>
+        <For each={monitors}>
+          {(monitor) => <Bar gdkmonitor={monitor} />}
+        </For>
+        <NotificationPopups />
+      </This>
     )
   },
 })

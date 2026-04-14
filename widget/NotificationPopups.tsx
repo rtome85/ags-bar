@@ -3,6 +3,7 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import Pango from "gi://Pango"
 import AstalNotifd from "gi://AstalNotifd"
+import AstalHyprland from "gi://AstalHyprland?version=0.1"
 import app from "ags/gtk4/app"
 import { onCleanup } from "ags"
 import { markUnread, markRead } from "./notificationState"
@@ -10,6 +11,16 @@ import { markUnread, markRead } from "./notificationState"
 const DISMISS_MS = 5000
 const ACTION_BTN =
   "background: transparent; border-radius: 6px; padding: 4px; min-width: 0; min-height: 0;"
+
+function getActiveMonitor() {
+  const hyprland = AstalHyprland.get_default()
+  const focusedName = hyprland.focusedMonitor?.name
+
+  return (
+    app.monitors.find((monitor) => monitor.connector === focusedName) ??
+    app.monitors[0]
+  )
+}
 
 function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Monitor) {
   const { TOP, RIGHT } = Astal.WindowAnchor
@@ -26,9 +37,9 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
 
   function handleRead() {
     if (dismissed) return
-    notification.dismiss()
     markRead(notification.id)
     close()
+    notification.dismiss()
   }
 
   function handleTimeout() {
@@ -150,14 +161,18 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
   timer = setTimeout(handleTimeout, DISMISS_MS)
 }
 
-export default function NotificationPopups({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
+export default function NotificationPopups() {
   const notifd = AstalNotifd.get_default()
   let listenerWin: Astal.Window
+  const fallbackMonitor = app.monitors[0]
 
   const handle = notifd.connect("notified", (_: unknown, id: number) => {
     const notification = notifd.get_notification(id)
+    const monitor = getActiveMonitor()
+
     if (!notification) return
-    spawnPopup(notification, gdkmonitor)
+    if (!monitor) return
+    spawnPopup(notification, monitor)
   })
 
   onCleanup(() => {
@@ -170,7 +185,7 @@ export default function NotificationPopups({ gdkmonitor }: { gdkmonitor: Gdk.Mon
       $={(self) => (listenerWin = self)}
       visible={false}
       namespace="notification-listener"
-      gdkmonitor={gdkmonitor}
+      gdkmonitor={fallbackMonitor}
       application={app}
       layer={Astal.Layer.BACKGROUND}
       css="background: transparent;"
