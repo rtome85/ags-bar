@@ -12,6 +12,13 @@ const DISMISS_MS = 5000
 const ACTION_BTN =
   "background: transparent; border-radius: 6px; padding: 4px; min-width: 0; min-height: 0;"
 
+type ActivePopup = {
+  win: Astal.Window
+  timer: ReturnType<typeof setTimeout>
+}
+
+const activePopups = new Set<ActivePopup>()
+
 function getActiveMonitor() {
   const hyprland = AstalHyprland.get_default()
   const focusedName = hyprland.focusedMonitor?.name
@@ -22,17 +29,24 @@ function getActiveMonitor() {
   )
 }
 
+function isNotificationLive(id: number) {
+  return AstalNotifd.get_default().get_notification(id) !== null
+}
+
 function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Monitor) {
   const { TOP, RIGHT } = Astal.WindowAnchor
   const actions = notification.actions ?? []
-  let timer: ReturnType<typeof setTimeout>
-  let win: Astal.Window
+  let popup: ActivePopup | null = null
   let dismissed = false
 
   function close() {
     dismissed = true
-    clearTimeout(timer)
-    win?.destroy()
+    if (!popup) return
+
+    clearTimeout(popup.timer)
+    popup.win.destroy()
+    activePopups.delete(popup)
+    popup = null
   }
 
   function handleRead() {
@@ -44,7 +58,9 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
 
   function handleTimeout() {
     if (dismissed) return
-    markUnread(notification.id)
+    if (isNotificationLive(notification.id)) {
+      markUnread(notification.id)
+    }
     close()
   }
 
@@ -54,7 +70,7 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
     handleRead()
   }
 
-  win = (
+  const win = (
     <window
       visible
       namespace="notification-popup"
@@ -158,7 +174,19 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
     </window>
   ) as unknown as Astal.Window
 
-  timer = setTimeout(handleTimeout, DISMISS_MS)
+  popup = {
+    win,
+    timer: setTimeout(handleTimeout, DISMISS_MS),
+  }
+  activePopups.add(popup)
+}
+
+function closeActivePopups() {
+  activePopups.forEach((popup) => {
+    clearTimeout(popup.timer)
+    popup.win.destroy()
+  })
+  activePopups.clear()
 }
 
 export default function NotificationPopups() {
@@ -177,6 +205,7 @@ export default function NotificationPopups() {
 
   onCleanup(() => {
     notifd.disconnect(handle)
+    closeActivePopups()
     listenerWin?.destroy()
   })
 
