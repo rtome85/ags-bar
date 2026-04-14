@@ -1,7 +1,10 @@
 import Gtk from "gi://Gtk?version=4.0"
+import GLib from "gi://GLib"
 import { createState, onCleanup } from "ags"
 import { interval } from "ags/time"
 import { execAsync } from "ags/process"
+
+const TERMINAL = GLib.getenv("TERMINAL")
 
 const CHECK_INTERVAL_MS = 10 * 60 * 1000 // 10 minutes
 
@@ -32,7 +35,7 @@ export default function UpdatesWidget() {
 
   return (
     <button
-      onClicked={() => execAsync(["hyprctl", "dispatch", "exec", "[float] ghostty -e omarchy-update"])}
+      onClicked={() => execAsync(["hyprctl", "dispatch", "exec", `[float] ${TERMINAL} -e omarchy-update`])}
       css="background: transparent; border-radius: 6px; padding: 0 4px;"
       tooltipText="Open system updater"
     >
