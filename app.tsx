@@ -5,6 +5,7 @@ import Gdk from "gi://Gdk?version=4.0"
 import style from "./style.scss"
 import overrides from "./overrides"
 import Bar from "./widget/Bar"
+import NotificationPopups from "./widget/NotificationPopups"
 
 // Loaded at priority 900 (above PRIORITY_USER=800) to win over the
 // theme's `* { border-radius: 0 }` and button background rules.
@@ -27,6 +28,7 @@ app.start({
         {(monitor) => (
           <This this={app}>
             <Bar gdkmonitor={monitor} />
+            <NotificationPopups gdkmonitor={monitor} />
           </This>
         )}
       </For>
