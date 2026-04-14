@@ -3,6 +3,7 @@ import SoundWidget from "./SoundWidget"
 import BluetoothWidget from "./BluetoothWidget"
 import CalendarWidget from "./CalendarWidget"
 import UpdatesWidget from "./UpdatesWidget"
+import NotificationCenter from "./NotificationCenter"
 import WorkspaceSwitcher from "./WorkspaceSwitcher"
 import Astal from "gi://Astal?version=4.0"
 import Gtk from "gi://Gtk?version=4.0"
@@ -256,7 +257,6 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
       <centerbox>
         <box $type="start">
           <WorkspaceSwitcher gdkmonitor={gdkmonitor} />
-          <Mpris />
         </box>
         <box $type="center">
           <CalendarWidget />
@@ -268,6 +268,7 @@ export default function Bar({ gdkmonitor }: { gdkmonitor: Gdk.Monitor }) {
           <BluetoothWidget />
           <SoundWidget />
           <Battery />
+          <NotificationCenter />
         </box>
       </centerbox>
     </window>
