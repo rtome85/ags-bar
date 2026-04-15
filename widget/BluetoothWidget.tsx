@@ -25,6 +25,7 @@ function SectionHeader({ label }: { label: string }) {
 }
 
 const ACTION_BTN = "background: transparent; border-radius: 6px; padding: 5px; min-width: 0; min-height: 0;"
+const ACTION_SLOT_CSS = "min-width: 30px; min-height: 28px;"
 const SCAN_TIMEOUT_MS = 10_000
 
 function DeviceRow({ device, adapter }: { device: AstalBluetooth.Device; adapter: AstalBluetooth.Adapter | null }) {
@@ -68,34 +69,34 @@ function DeviceRow({ device, adapter }: { device: AstalBluetooth.Device; adapter
         />
       </box>
 
-      {/* Spinner while connecting */}
-      <Gtk.Spinner
-        spinning={connecting}
-        visible={connecting}
-        valign={Gtk.Align.CENTER}
-        css="margin: 0 2px;"
-      />
-
-      {/* Connect / disconnect */}
-      <button
-        visible={connecting((ing) => !ing)}
-        tooltipText={connected((c) => (c ? "Disconnect" : "Connect"))}
-        valign={Gtk.Align.CENTER}
-        onClicked={() => {
-          if (device.connected) {
-            device.disconnect_device(null)
-          } else {
-            device.connect_device(null)
-          }
-        }}
-        css={ACTION_BTN}
-      >
-        <image
-          iconName={connected((c) => (c ? "network-transmit-receive-symbolic" : "network-offline-symbolic"))}
-          pixelSize={13}
-          css={connected((c) => (c ? "" : "opacity: 0.4;"))}
+      <box css={ACTION_SLOT_CSS} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
+        <Gtk.Spinner
+          spinning={connecting}
+          visible={connecting}
+          valign={Gtk.Align.CENTER}
         />
-      </button>
+
+        {/* Connect / disconnect */}
+        <button
+          visible={connecting((ing) => !ing)}
+          tooltipText={connected((c) => (c ? "Disconnect" : "Connect"))}
+          valign={Gtk.Align.CENTER}
+          onClicked={() => {
+            if (device.connected) {
+              device.disconnect_device(null)
+            } else {
+              device.connect_device(null)
+            }
+          }}
+          css={ACTION_BTN}
+        >
+          <image
+            iconName={connected((c) => (c ? "network-transmit-receive-symbolic" : "network-offline-symbolic"))}
+            pixelSize={13}
+            css={connected((c) => (c ? "" : "opacity: 0.4;"))}
+          />
+        </button>
+      </box>
 
       {/* Remove / unpair */}
       <button
@@ -135,21 +136,22 @@ function AvailableDeviceRow({ device }: { device: AstalBluetooth.Device }) {
         label={createBinding(device, "alias")}
         css="font-size: 13px; font-weight: 600; opacity: 0.7;"
       />
-      <Gtk.Spinner
-        spinning={connecting}
-        visible={connecting}
-        valign={Gtk.Align.CENTER}
-        css="margin: 0 2px;"
-      />
-      <button
-        tooltipText="Pair"
-        valign={Gtk.Align.CENTER}
-        visible={connecting((ing) => !ing)}
-        onClicked={() => device.pair()}
-        css={ACTION_BTN}
-      >
-        <image iconName="list-add-symbolic" pixelSize={13} />
-      </button>
+      <box css={ACTION_SLOT_CSS} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
+        <Gtk.Spinner
+          spinning={connecting}
+          visible={connecting}
+          valign={Gtk.Align.CENTER}
+        />
+        <button
+          tooltipText="Pair"
+          valign={Gtk.Align.CENTER}
+          visible={connecting((ing) => !ing)}
+          onClicked={() => device.pair()}
+          css={ACTION_BTN}
+        >
+          <image iconName="list-add-symbolic" pixelSize={13} />
+        </button>
+      </box>
     </box>
   )
 }
@@ -198,7 +200,11 @@ export default function BluetoothWidget() {
       />
 
       <popover>
-        <box orientation={Gtk.Orientation.VERTICAL} css="min-width: 280px; padding: 4px 12px 12px;">
+        <box
+          orientation={Gtk.Orientation.VERTICAL}
+          widthRequest={320}
+          css="padding: 4px 12px 12px;"
+        >
 
           {/* Power header card */}
           <box
@@ -286,8 +292,7 @@ export default function BluetoothWidget() {
               {(adp) =>
                 adp ? (
                   <label
-                    label="Scanning…"
-                    visible={createBinding(adp, "discovering")}
+                    label={createBinding(adp, "discovering")((d) => (d ? "Scanning…" : " "))}
                     css="font-size: 11px; opacity: 0.5; padding: 4px 10px;"
                   />
                 ) : (

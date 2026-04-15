@@ -102,7 +102,7 @@ export default function SoundWidget() {
                     label={createBinding(stream, "description")((d) =>
                       d || stream.name || "Unknown",
                     )}
-                    css="font-size: 13px; font-weight: 600; min-width: 80px; max-width: 100px;"
+                    css="font-size: 13px; font-weight: 600; min-width: 80px;"
                   />
                   {/* Slider */}
                   <slider

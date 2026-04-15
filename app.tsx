@@ -1,4 +1,4 @@
-import { createBinding, For, This } from "ags"
+import { createBinding, For, This, removeChild } from "ags"
 import app from "ags/gtk4/app"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
@@ -17,6 +17,10 @@ Gtk.StyleContext.add_provider_for_display(
   sliderOverride,
   900,
 )
+
+// When a monitor is removed, For tries to remove the Bar window from app.
+// The AGS removeChild handler doesn't cover app.remove_window, so we override it here.
+;(app as any)[removeChild] = (child: any) => child.destroy?.()
 
 app.start({
   css: style,

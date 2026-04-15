@@ -5,7 +5,7 @@ import Pango from "gi://Pango"
 import AstalNotifd from "gi://AstalNotifd"
 import AstalHyprland from "gi://AstalHyprland?version=0.1"
 import app from "ags/gtk4/app"
-import { onCleanup } from "ags"
+import { onCleanup, createRoot } from "ags"
 import { markUnread, markRead } from "./notificationState"
 
 const DISMISS_MS = 5000
@@ -33,7 +33,7 @@ function isNotificationLive(id: number) {
   return AstalNotifd.get_default().get_notification(id) !== null
 }
 
-function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Monitor) {
+function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Monitor, dispose: () => void) {
   const { TOP, RIGHT } = Astal.WindowAnchor
   const actions = notification.actions ?? []
   let popup: ActivePopup | null = null
@@ -47,6 +47,7 @@ function spawnPopup(notification: AstalNotifd.Notification, gdkmonitor: Gdk.Moni
     popup.win.destroy()
     activePopups.delete(popup)
     popup = null
+    dispose()
   }
 
   function handleRead() {
@@ -200,7 +201,7 @@ export default function NotificationPopups() {
 
     if (!notification) return
     if (!monitor) return
-    spawnPopup(notification, monitor)
+    createRoot((dispose) => spawnPopup(notification, monitor, dispose))
   })
 
   onCleanup(() => {
