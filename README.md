@@ -32,7 +32,7 @@ app.tsx          Entry point; mounts Bar on each monitor
 widget/
   Bar.tsx        Root bar widget; composes all modules
   BluetoothWidget.tsx  Bluetooth power toggle + device manager
-  SoundWidget.tsx      PipeWire volume + device selector
+  SoundWidget.tsx      MPRIS carousel + PipeWire volume/device selector
 style.scss       Global bar styles
 overrides.ts     CSS provider loaded at priority 900 to override theme defaults
 ```
@@ -59,6 +59,9 @@ Menubutton in the bar that opens a popover with:
 
 Menubutton showing a Nerd Font volume icon. Popover contains:
 
+- **Media** — Carousel for all running MPRIS players with cover art, title,
+  artist, previous track, play/pause, next track, and wraparound player
+  navigation
 - **Applications** — Per-stream volume sliders for active PipeWire clients
 - **Playback Devices** — Speaker selection; active device highlighted
 - **Input Devices** — Microphone selection; active device highlighted
@@ -69,7 +72,6 @@ Composes the following modules left-to-right (or in configured order):
 
 | Module | Source |
 |---|---|
-| Media (MPRIS) | Inline in Bar.tsx |
 | System Tray | Inline in Bar.tsx |
 | Network | Inline in Bar.tsx |
 | Battery | Inline in Bar.tsx |
